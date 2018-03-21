@@ -1,0 +1,21 @@
+
+/* Image */
+img {
+    border-radius: 4px;
+    overflow: hidden;
+    border: 2px solid black;
+    margin-bottom: -6px;
+}
+.image img {
+width: 100%; }
+.image.fit {
+display: block;
+width: 100%; }
+.image.feature {
+display: block;
+width: 100%;
+}
+
+img.movie-mini-poster {
+    width: 100%;
+}

@@ -1,0 +1,134 @@
+{% extends "inherited/base.html" %}
+
+{% block body %}
+<div class="main">
+    <div>
+        <button id="add-movie-submit" class="button" onclick="window.location.href='/'">
+            <span>
+                Back
+            </span>
+        </button>
+        <button id="main-add-movie-button" onClick="openModal();" class="button"
+                style="vertical-align:middle; width:175px;float:right;">
+            <span>Add Movie</span>
+        </button>
+    </div>
+    <div id="add-movie-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="new_movie">
+                IMDB ID:<br>
+                <input type="text" name="IMDBID"><br>
+            </form>
+            <div class="modal-footer">
+                <button id="add-movie-submit" onClick="addMovie();" class="button">
+                    <span>
+                        Submit
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<table id="main-movie-table">
+
+</table>
+{% endblock body %}
+
+
+{% block scripts %}
+<script type="text/javascript" id="pagedata" data-rating_source="{{ rating_source }}">
+    var pagedata = $('#pagedata').data();
+    var rating_source = pagedata['rating_source'];
+    var modal = document.getElementById('add-movie-modal');
+    var span = document.getElementsByClassName("close")[0];
+
+    function openModal() {
+        modal.style.display = "block";
+    }
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+    jQuery(document).ready(function($) {
+        $(".clickable-data-row").click(function() {
+            window.location = $(this).data("href");
+        });
+    });
+
+    function addMovie() {
+        let fields = $('form#new_movie').find('input, textarea');
+        let post_data = {};
+        $.each(fields, function(i, field) {
+            let key = field.name;
+            let val = field.value;
+            let req = field.required;
+            if(req == 'required' && val == '') {
+                missing = key;
+                return false;
+            } else if(val != '') {
+                post_data[key] = val;
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: `/api/v1/movies`,
+            contentType:"application/json; charset=utf-8",
+            data: JSON.stringify(post_data),
+            success: function(data) {
+                console.log("SUCCESS")
+            }
+        });
+        location.reload();
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/movies",
+        success: function (data) {
+            // for movie in data:
+            movies = JSON.parse(data);
+            document.getElementById("main-movie-table").innerHTML = convert_to_list_table(
+                JSON.parse(data),
+                [
+                    'Poster',
+                    'Title',
+                    'Plot',
+                    'Rated',
+                    'Ratings',
+                    'Released',
+                ]
+            );
+
+            rating_doms = document.getElementsByClassName("Ratings")
+
+            for (i = 0; i < movies.length; i++) {
+                $.ajax({
+                    type: "GET",
+                    url: `/api/v1/movies/${movies[i].id}/ratings`,
+                    async: false,
+                    success: function (data) {
+                        ratings = JSON.parse(data)
+                        for(j = 0; j < ratings.length; j++){
+                            for (k = 0; k < rating_doms.length; k++) {
+                                if (movies[i].id == rating_doms[k].id && ratings[j]['Source'] == rating_source) {
+                                    rating_doms[k].innerHTML = ratings[j]['Value']
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        //     TM2.notify('Project added.');
+        //     $("#project_name").val("");
+        //     $("#create_sandbox_project").modal("toggle");
+        //     $('#projects').DataTable().ajax.reloadChanged();
+        // },
+        // error: function (e) {
+        //     console.log(e);
+        //     TM2.notify.error('Failed to create project.');
+        // }
+    });
+</script>
+{% endblock scripts %}

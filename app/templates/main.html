@@ -1,0 +1,32 @@
+{% extends "inherited/base.html" %}
+
+{% block body %}
+<div class="main">
+    <button id="main-add-movie-button" onClick="location.href = '/movies';" class="button"
+            style="vertical-align:middle; width:175px;">
+        Movies
+    </button>
+</div><br><br>
+<!--<div id="contact" style="display: none;background: grey;color: #FFF;padding: 10px;">-->
+    <!--Contact me!-->
+<!--</div>-->
+<!--<a href="#" id="toggle">Contact</a>-->
+{% endblock body %}
+
+
+{% block scripts %}
+<script>
+    console.log($('.blah'))
+    $(document).ready(function(){
+        success('blah');
+     });
+// $(function()
+// {
+//      $("a#toggle").click(function()
+//      {
+//          $("#contact").slideToggle();
+//          return false;
+//      });
+// });
+</script>
+{% endblock scripts %}

@@ -1,0 +1,24 @@
+div {
+    margin: 10px;
+    /*border: 1px solid black;*/
+}
+
+div.main {
+    margin: 20px;
+}
+
+div.vertical-padding {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+div.horizontal-padding {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+div.bottom-padding {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-left: 0px;
+}

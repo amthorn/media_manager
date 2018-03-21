@@ -1,0 +1,336 @@
+{% extends "inherited/base.html" %}
+
+{% block body %}
+<div class="main">
+    <div>
+        <button id="add-movie-submit" class="button" onclick="window.location.href='/movies'">
+            <span>
+                Back
+            </span>
+        </button>
+        <button id="main-add-movie-button"
+                onClick="buttonConfirm(deleteMovie);"
+                class="button"
+                style="float:right;vertical-align:middle;width:200px;">
+            <span>Delete Movie</span>
+        </button>
+    </div>
+    <div>
+        <div class="vertical-padding" style="margin-top:30px; margin-bottom:15px;">
+            <h1 id="h1-movie-title"></h1>
+            <h3 style="vertical-align:middle; margin-top:15px;" id="Genre"></h3>
+        </div>
+        <div class="vertical-padding">
+            <p>
+                <img class="image" id="movie-poster" style="width:200px;margin-right:20px;" align="left"></img>
+                <div class="horizontal-padding">
+                    <div class="bottom-padding">
+                        <h3 for="Plot">Plot:</h3>
+                        <label id="Plot"></label>
+                    </div>
+                    <div class="bottom-padding">
+                        <h3 for="Rated">Rated:</h3>
+                        <label id="Rated"></label>
+                    </div>
+                    <div class="bottom-padding">
+                        <h3 for="Runtime">Runtime:</h3>
+                        <label id="Runtime"></label>
+                    </div>
+                    <div class="bottom-padding">
+                        <h3 for="Released">Released:</h3>
+                        <label id="Released"></label>
+                    </div>
+                    <div class="bottom-padding">
+                        <h3 for="Actors">Actors:</h3>
+                        <label id="Actors"></label>
+                    </div>
+                </div>
+            </p>
+        </div><br><br>
+        <div class="vertical-padding">
+            <div class="bottom-padding">
+                <h3 for="Director">Director:</h3>
+                <label id="Director"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Writer">Writer:</h3>
+                <label id="Writer"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Language">Language:</h3>
+                <label id="Language"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Country">Country:</h3>
+                <label id="Country"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Awards">Awards:</h3>
+                <label id="Awards"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Metascore">Metascore:</h3>
+                <label id="Metascore"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Ratings">Ratings:</h3>
+                <label id="Ratings"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="imdbVotes">IMDB Votes:</h3>
+                <label id="imdbVotes"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Type">Type:</h3>
+                <label id="Type"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="BoxOffice">BoxOffice:</h3>
+                <label id="BoxOffice"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Production">Production:</h3>
+                <label id="Production"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Website">Website:</h3>
+                <a target="_blank" id="Website"></a>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Response">Response:</h3>
+                <label id="Response"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Favourite">Favourite:</h3>
+                <label id="Favourite"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="Seen">Seen:</h3>
+                <label id="Seen"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="WantToSee">Want To See:</h3>
+                <label id="WantToSee"></label>
+            </div>
+            <div class="bottom-padding">
+                <h3 for="imdbID">IMDB ID:</h3>
+                <label id="imdbID"></label>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+
+{% block scripts %}
+<script type="text/javascript" id="pagedata" data-movie_id="{{ movie_id }}" data-rating_source="{{ rating_source }}">
+    var pagedata = $('#pagedata').data();
+    var movie_id = pagedata['movie_id'];
+    var rating_source = pagedata['rating_source'];
+
+    function deleteMovie() {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/v1/movies/${movie_id}`,
+            success: function (data) {
+                location.href = "/movies";
+            }
+        });
+    }
+
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}`,
+        success: function (data) {
+            // for movie in data:
+            parsed = JSON.parse(data)
+
+            document.getElementById("h1-movie-title").innerHTML = parsed['Title']
+            document.getElementById("movie-poster").src = parsed['Poster'];
+            for(i=0;i<Object.keys(parsed).length; i++){
+                key = Object.keys(parsed)[i];
+                dom = document.getElementById(key);
+
+                if(dom != null){
+                    if(dom.tagName == 'A'){
+                        dom.href = parsed[key];
+                    }
+                    dom.innerHTML = parsed[key];
+                }
+            }
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/actors`,
+        success: function (data) {
+            // for movie in data:
+            actors = JSON.parse(data)
+
+            final = []
+            for(i=0;i<actors.length; i++) {
+                actor = actors[i].FirstName;
+
+                if (actors[i].MiddleNames != null) {
+                    actor += " " + actors[i].MiddleNames;
+                }
+                if (actors[i].LastName != null) {
+                    actor += " " + actors[i].LastName;
+                }
+                final.push(actor)
+            }
+            document.getElementById("Actors").innerHTML = final.join(", ");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/genres`,
+        success: function (data) {
+            // for movie in data:
+            genres = JSON.parse(data)
+
+            final = []
+            for(i=0;i<genres.length; i++) {
+                genre = genres[i].Name;
+                final.push(genre)
+            }
+            document.getElementById("Genre").innerHTML = final.join(", ");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/languages`,
+        success: function (data) {
+            // for movie in data:
+            languages = JSON.parse(data)
+
+            final = []
+            for(i=0;i<languages.length; i++) {
+                language = languages[i].Name;
+                final.push(language)
+            }
+            document.getElementById("Language").innerHTML = final.join(", ");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/ratings`,
+        success: function (data) {
+            // for movie in data:
+            ratings = JSON.parse(data)
+
+            final = []
+            header_rating = ''
+            for(i=0;i<ratings.length; i++) {
+                rating = ratings[i].Source + ": " + ratings[i].Value.toString();
+                final.push(rating)
+                if(ratings[i].Source.toLowerCase() == rating_source.toLowerCase()){
+                    header_rating = ratings[i].Value.toString()
+                }
+            }
+            document.getElementById("Ratings").innerHTML = final.join("<br>");
+            document.getElementById("h1-movie-title").innerHTML += ` (${header_rating})`;
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/production_companies`,
+        success: function (data) {
+            // for movie in data:
+            pcs = JSON.parse(data)
+
+            final = []
+            for(i=0;i<pcs.length; i++) {
+                pc = pcs[i].Name;
+                final.push(pc)
+            }
+            document.getElementById("Production").innerHTML = final.join(", ");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/writers`,
+        async: false,
+        success: function (data) {
+            // for movie in data:
+            writers = JSON.parse(data)
+
+            final = []
+            for(i=0;i<writers.length; i++) {
+                writer = writers[i].FirstName;
+
+                if (writers[i].MiddleNames != null) {
+                    writer += " " + writers[i].MiddleNames;
+                }
+                if (writers[i].LastName != null) {
+                    writer += " " + writers[i].LastName;
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: `/api/v1/movies/${movie_id}/writers/${writers[i].id}/roles`,
+                    async: false,
+                    timeout: 100,
+                    success: function (data) {
+                        roles = JSON.parse(data)
+                        if(roles != []) {
+                            if(roles[0] != null) {
+                                role = ' (' + roles[0].Role
+                                for (j = 1; j < roles.length; j++) {
+                                    role += ", " + roles[j].Role
+                                }
+                                role += ')'
+                                writer += role
+                            }
+                        }
+                        final.push(writer)
+                    }
+                });
+            }
+            document.getElementById("Writer").innerHTML = final.join(", ");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/movies/${movie_id}/directors`,
+        success: function (data) {
+            // for movie in data:
+            directors = JSON.parse(data)
+
+            final = []
+            for(i=0;i<directors.length; i++) {
+                director = directors[i].FirstName;
+
+                if (directors[i].MiddleNames != null) {
+                    director += " " + directors[i].MiddleNames;
+                }
+                if (directors[i].LastName != null) {
+                    director += " " + directors[i].LastName;
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: `/api/v1/movies/${movie_id}/directors/${directors[i].id}/roles`,
+                    async: false,
+                    timeout: 100,
+                    success: function (data) {
+                        roles = JSON.parse(data)
+                        if(roles != []) {
+                            if(roles[0] != null) {
+                                role = ' (' + roles[0].Role
+                                for (j = 1; j < roles.length; j++) {
+                                    role += ", " + roles[j].Role
+                                }
+                                role += ')'
+                                director += role
+                            }
+                        }
+                        final.push(director)
+                    }
+                });
+            }
+            document.getElementById("Director").innerHTML = final.join(", ");
+        }
+    });
+</script>
+{% endblock scripts %}
